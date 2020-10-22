@@ -1,0 +1,16 @@
+[
+    {
+        "arguments": [
+            "gcc",
+            "-c",
+            "-ggdb",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "myesl",
+            "myesl.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "myesl.c"
+    }
+]
