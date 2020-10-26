@@ -1,3 +1,4 @@
+/* FIXME: You should `sudo apt install festival` first for text2wave */
 #include <esl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,8 @@
 /*Business Marcos*/
 #define BLANCE 100
 #define CHARGE 100
-#define ERROR_PROMPT "say:invalid input, please enter again"
+#define ERROR_PROMPT " 'say:invalid input, please enter again' "
+
 #define set_string(dest, str) strncpy(dest, str, sizeof(dest) - 1);
 #define ENSURE_INPUT(ch, input) if (!input) {               \
   esl_execute(ch->handle, "speak", "Bye", NULL);            \
@@ -137,7 +139,7 @@ select_menu:
 
         ch->state = CHARGE_WAIT_ACCOUNT;
         esl_execute(ch->handle, "play_and_get_digits", "4 5 3 5000 # "
-            " 'say: please enter your account, and press sharp key to endup' "
+            " 'say: please enter your account, end up with bound key' "
             ERROR_PROMPT " digits ^\\d{4}$", NULL);
       }
       break;
@@ -150,7 +152,7 @@ select_menu:
         if (ch->menu == CHARGE_MENU_QUERY) {
           ch->state = CHARGE_WAIT_ACCOUNT_PASSWORD;
           esl_execute(ch->handle, "play_and_get_digits", "4 5 3 5000 # "
-              " 'say:please enter your password, endup with sharp key' "
+              " 'say:please enter your password, endup with bound key' "
               ERROR_PROMPT " digits ^\\d{4}$", NULL);
         } else {
           ch->state = CHARGE_WELCOME;
