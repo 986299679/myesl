@@ -51,7 +51,7 @@ typedef struct charge_helper_s {
 } charge_helper_t;
 
 /* Function headers {{{ */
-static void mycallback(esl_socket_t server_sock, esl_socket_t client_socket,
+static void charge_callback(esl_socket_t server_sock, esl_socket_t client_socket,
                        struct sockaddr_in *addr, void *user_data);
 
 static char *get_digits(esl_event_t *event);
@@ -69,12 +69,12 @@ static int do_charge(int balance, int charge);
 int main(int argc, char *argv[])
 {
   esl_global_set_default_logger(ESL_LOG_LEVEL_DEBUG);
-  esl_listen_threaded(HOST, PORT, mycallback, NULL, MAXCALL);
+  esl_listen_threaded(HOST, PORT, charge_callback, NULL, MAXCALL);
 
   return 0;
 }
 
-static void mycallback(esl_socket_t server_sock, esl_socket_t client_socket,
+static void charge_callback(esl_socket_t server_sock, esl_socket_t client_socket,
     struct sockaddr_in *addr, void *user_data)
 {
   /* TODO: DO SOMETHING <22-10-20, GenmZy_> */
