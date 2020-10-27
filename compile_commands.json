@@ -7,10 +7,38 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
+            "acd",
+            "acd.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "acd.c"
+    },
+    {
+        "arguments": [
+            "gcc",
+            "-c",
+            "-ggdb",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
             "myesl",
             "myesl.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
         "file": "myesl.c"
+    },
+    {
+        "arguments": [
+            "gcc",
+            "-c",
+            "-ggdb",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "charge",
+            "charge.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "charge.c"
     }
 ]

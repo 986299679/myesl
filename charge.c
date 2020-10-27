@@ -1,4 +1,12 @@
-/* FIXME: You should `sudo apt install festival` first for text2wave */
+/* FIXME: You should `sudo apt install festival` first for text2wave 
+ *
+ * TODO: Next time, i install something like `sudo apt install libttspico-utils` for pico2text
+ *
+ * TODO: Finally, i install some like
+ * (`/mnt/e/balcon/balcon.exe -l` to show all voices)
+ * `echo ${text} | /mnt/e/balcon/balcon.exe -n Microsoft Zira Desktop -w ${file} -t`
+ * this is only can be used in wsl...
+ */
 #include <esl.h>
 #include <stdio.h>
 #include <stdlib.h>
