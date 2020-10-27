@@ -5,7 +5,7 @@
  * TODO: Finally, i install some like
  * (`/mnt/e/balcon/balcon.exe -l` to show all voices)
  * `echo ${text} | /mnt/e/balcon/balcon.exe -n Microsoft Zira Desktop -w ${file} -t`
- * this is only can be used in wsl...
+ * this can only be used in wsl...
  */
 #include <esl.h>
 #include <stdio.h>
