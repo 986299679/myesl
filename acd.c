@@ -53,14 +53,17 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
   esl_handle_t handle = {{0}};
   esl_status_t status = ESL_SUCCESS;
   agent_t *agent = NULL;
-  const char *cid_name, *cid_number;
+  const char *caller_name;
+  const char *caller_num;
 
   esl_attach_handle(&handle, client_sock, addr);
 
-  cid_name = esl_event_get_header(handle.info_event, "Caller-Caller-ID-Name");
-  cid_number =
+  caller_name =
+    esl_event_get_header(handle.info_event, "Caller-Caller-ID-Name");
+  caller_num =
     esl_event_get_header(handle.info_event, "Caller-Caller-ID-Number");
-  esl_log(ESL_LOG_INFO, "New Call from \"%s\" <%s>\n", cid_name, cid_name);
+  esl_log(ESL_LOG_INFO, "New Call from \"%s\" <%s>\n", caller_name,
+          caller_name);
 
   esl_send_recv(&handle, "myevents");
   esl_log(ESL_LOG_INFO, "%s\n", handle.last_sr_event);
@@ -73,7 +76,7 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
   esl_execute(&handle, "set", "hangup_after_bridge=true", NULL);
   esl_execute(&handle, "speak",
               "Hello, welcome to call to Yunda,"
-              " telphone is tranfering to sitters, please holding on",
+              " this telphone is tranfering to agents, please hold on",
               NULL);
   sleep(5);
   esl_execute(&handle, "playback", "local_stream://moh", NULL);
@@ -109,8 +112,8 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
         esl_log(ESL_LOG_INFO, "bridge to %s\n", agent->exten);
         break;
       case ESL_EVENT_CHANNEL_HANGUP_COMPLETE:
-        esl_log(ESL_LOG_INFO, "Caller \"%s\" <%s> Hangup \n", cid_name,
-                cid_number);
+        esl_log(ESL_LOG_INFO, "Caller \"%s\" <%s> Hangup \n", caller_name,
+                caller_num);
         if (agent) {
           reset_agent(agent);
         }
