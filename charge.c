@@ -1,30 +1,36 @@
-/* FIXME: You should `sudo apt install festival` first for text2wave 
+/* FIXME: You should `sudo apt install festival` first for
+ * text2wave
  *
- * TODO: Next time, i install something like `sudo apt install libttspico-utils` for pico2text
+ * TODO: Next time, i install something like `sudo apt install
+ * libttspico-utils` for pico2text
  *
  * TODO: Finally, i install some like
  * (`/mnt/e/balcon/balcon.exe -l` to show all voices)
- * `echo ${text} | /mnt/e/balcon/balcon.exe -n Microsoft Zira Desktop -w ${file} -t`
- * this can only be used in wsl...
+ * `echo ${text} | /mnt/e/balcon/balcon.exe -n Microsoft Zira
+ * Desktop -w ${file} -t` this can only be used in wsl...
  */
 #include <esl.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define HOST "localhost"
-#define PORT 8040
+#define HOST    "localhost"
+#define PORT    8040
 #define MAXCALL 10000
 /*Business Marcos*/
-#define BLANCE 100
-#define CHARGE 100
+#define BLANCE       100
+#define CHARGE       100
 #define ERROR_PROMPT " 'say:invalid input, please enter again' "
 
 #define set_string(dest, str) strncpy(dest, str, sizeof(dest) - 1);
-#define ENSURE_INPUT(ch, input) if (!input) {               \
-  esl_execute(ch->handle, "speak", "Bye", NULL);            \
-  esl_execute(ch->handle, "handup", NULL, NULL);            \
-  return;                                                   \
-}
+
+#define ENSURE_INPUT(ch, input)                                                \
+  do {                                                                         \
+    if (!input) {                                                              \
+      esl_execute(ch->handle, "speak", "Bye", NULL);                           \
+      esl_execute(ch->handle, "handup", NULL, NULL);                           \
+      return;                                                                  \
+    }                                                                          \
+  } while (0)
 
 typedef enum charge_menu_s {
   CHARGE_MENU_NONE,
@@ -51,8 +57,9 @@ typedef struct charge_helper_s {
 } charge_helper_t;
 
 /* Function headers {{{ */
-static void charge_callback(esl_socket_t server_sock, esl_socket_t client_socket,
-                       struct sockaddr_in *addr, void *user_data);
+static void charge_callback(esl_socket_t server_sock,
+                            esl_socket_t client_socket,
+                            struct sockaddr_in *addr, void *user_data);
 
 static char *get_digits(esl_event_t *event);
 
@@ -65,7 +72,6 @@ static int check_account_card(char *account, char *card);
 static int do_charge(int balance, int charge);
 /* }}} Function headers */
 
-
 int main(int argc, char *argv[])
 {
   esl_global_set_default_logger(ESL_LOG_LEVEL_DEBUG);
@@ -74,13 +80,14 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-static void charge_callback(esl_socket_t server_sock, esl_socket_t client_socket,
-    struct sockaddr_in *addr, void *user_data)
+static void charge_callback(esl_socket_t server_sock,
+                            esl_socket_t client_socket,
+                            struct sockaddr_in *addr, void *user_data)
 {
   /* TODO: DO SOMETHING <22-10-20, GenmZy_> */
-  esl_handle_t handle = {{ 0 }};
+  esl_handle_t handle = {{0}};
   esl_status_t status;
-  charge_helper_t charge_helper = { 0 };
+  charge_helper_t charge_helper = {0};
 
   charge_helper.handle = &handle;
   charge_helper.balance = BLANCE;
@@ -90,14 +97,15 @@ static void charge_callback(esl_socket_t server_sock, esl_socket_t client_socket
   esl_log(ESL_LOG_INFO, "Connected! %d\n", handle.sock);
   esl_events(&handle, ESL_EVENT_TYPE_PLAIN, "CHANNEL_EXECUTE_COMPLETE");
   esl_filter(&handle, "Unique-ID",
-      esl_event_get_header(handle.info_event, "Caller-Unique-ID"));
+             esl_event_get_header(handle.info_event, "Caller-Unique-ID"));
   esl_send_recv(&handle, "linger 5");
   esl_log(ESL_LOG_INFO, "%s\n", handle.last_sr_reply);
 
   esl_execute(&handle, "answer", NULL, NULL);
   esl_execute(&handle, "set", "tts_engine=tts_commandline", NULL);
   esl_execute(&handle, "set", "tts_voice=TingTing", NULL);
-  esl_execute(&handle, "speak", "Hello, welcome to airline charge service", NULL);
+  esl_execute(&handle, "speak", "Hello, welcome to airline charge service",
+              NULL);
 
   while (ESL_SUCCESS == (status = esl_recv(&handle))) {
     const char *type = esl_event_get_header(handle.last_event, "content-type");
@@ -125,104 +133,114 @@ static void event_callback(charge_helper_t *ch)
   esl_log(ESL_LOG_INFO, "State: %d App: %s\n", ch->state, application);
 
   switch (ch->state) {
-    case CHARGE_WELCOME:
-      if (!strcmp(application, "speak")) {
-select_menu:
-        ch->state = CHARGE_MENU;
+  case CHARGE_WELCOME:
+    if (!strcmp(application, "speak")) {
+    select_menu:
+      ch->state = CHARGE_MENU;
+      esl_execute(ch->handle, "play_and_get_digits",
+                  "1 1 3 5000 # "
+                  " 'say: checkout press number one, charge "
+                  "press number 2' " ERROR_PROMPT " digits ^\\d$",
+                  NULL);
+    }
+    break;
+  case CHARGE_MENU:
+    if (!strcmp(application, "play_and_get_digits")) {
+      char *menu = get_digits(event);
+      ENSURE_INPUT(ch, menu);
+      if (!strcmp(menu, "1")) {
+        ch->menu = CHARGE_MENU_QUERY;
+      } else if (!strcmp(menu, "2")) {
+        ch->menu = CHARGE_MENU_CHARGE;
+      }
+
+      ch->state = CHARGE_WAIT_ACCOUNT;
+      esl_execute(ch->handle, "play_and_get_digits",
+                  "4 5 3 5000 # "
+                  " 'say: please enter your account, end up "
+                  "with bound key' " ERROR_PROMPT " digits ^\\d{4}$",
+                  NULL);
+    }
+    break;
+  case CHARGE_WAIT_ACCOUNT:
+    if (!strcmp(application, "play_and_get_digits")) {
+      char *account = get_digits(event);
+      ENSURE_INPUT(ch, account);
+      set_string(ch->account, account);
+
+      if (ch->menu == CHARGE_MENU_QUERY) {
+        ch->state = CHARGE_WAIT_ACCOUNT_PASSWORD;
         esl_execute(ch->handle, "play_and_get_digits",
-            "1 1 3 5000 # "
-            " 'say: checkout press number one, charge press number 2' "
-            ERROR_PROMPT " digits ^\\d$", NULL);
+                    "4 5 3 5000 # "
+                    " 'say:please enter your password, endup "
+                    "with bound key' " ERROR_PROMPT " digits ^\\d{4}$",
+                    NULL);
+      } else {
+        ch->state = CHARGE_WELCOME;
+        esl_execute(ch->handle, "speak", "Invalid input, please try again",
+                    NULL);
       }
-      break;
-    case CHARGE_MENU:
-      if (!strcmp(application, "play_and_get_digits")) {
-        char *menu = get_digits(event);
-        ENSURE_INPUT(ch, menu);
-        if (!strcmp(menu, "1")) {
-          ch->menu = CHARGE_MENU_QUERY;
-        } else if (!strcmp(menu, "2")) {
-          ch->menu = CHARGE_MENU_CHARGE;
-        }
+    }
+  case CHARGE_WAIT_ACCOUNT_PASSWORD:
+    if (!strcmp(application, "play_and_get_digits")) {
+      char *password = get_digits(event);
+      ENSURE_INPUT(ch, password);
 
-        ch->state = CHARGE_WAIT_ACCOUNT;
-        esl_execute(ch->handle, "play_and_get_digits", "4 5 3 5000 # "
-            " 'say: please enter your account, end up with bound key' "
-            ERROR_PROMPT " digits ^\\d{4}$", NULL);
+      if (check_account_password(ch->account, password)) {
+        char buffer[1024];
+        sprintf(buffer, "Your charge is %d dollars", ch->balance);
+        ch->state = CHARGE_WELCOME;
+        esl_execute(ch->handle, "speak", buffer, NULL);
+      } else {
+        ch->state = CHARGE_WELCOME;
+        esl_execute(ch->handle, "speak", "invalid input, please input again",
+                    NULL);
       }
-      break;
-    case CHARGE_WAIT_ACCOUNT:
-      if (!strcmp(application, "play_and_get_digits")) {
-        char *account = get_digits(event);
-        ENSURE_INPUT(ch, account);
-        set_string(ch->account, account);
+    }
+    break;
+  case CHARGE_WAIT_CARD:
+    if (!strcmp(application, "play_and_get_digits")) {
+      char *card = get_digits(event);
+      ENSURE_INPUT(ch, card);
 
-        if (ch->menu == CHARGE_MENU_QUERY) {
-          ch->state = CHARGE_WAIT_ACCOUNT_PASSWORD;
-          esl_execute(ch->handle, "play_and_get_digits", "4 5 3 5000 # "
-              " 'say:please enter your password, endup with bound key' "
-              ERROR_PROMPT " digits ^\\d{4}$", NULL);
-        } else {
-          ch->state = CHARGE_WELCOME;
-          esl_execute(ch->handle, "speak",
-              "Invalid input, please try again", NULL);
-        }
+      if (check_account_card(ch->account, card)) {
+        char buffer[1024];
+        sprintf(buffer, "You want to charge for %d dollars", CHARGE);
+        esl_execute(ch->handle, "speak", buffer, NULL);
+        ch->state = CHARGE_WAIT_CONFIRM;
+        esl_execute(ch->handle, "play_and_get_digits",
+                    "1 1 3 5000 # "
+                    " 'say:confirm press one, return to "
+                    "previous step press 2' " ERROR_PROMPT " digits ^\\d$",
+                    NULL);
+      } else {
+        ch->state = CHARGE_WELCOME;
+        esl_execute(ch->handle, "speak", "Invalid input, please enter again",
+                    NULL);
       }
-    case CHARGE_WAIT_ACCOUNT_PASSWORD:
-      if (!strcmp(application, "play_and_get_digits")) {
-        char *password = get_digits(event);
-        ENSURE_INPUT(ch, password);
-
-        if (check_account_password(ch->account, password)) {
-          char buffer[1024];
-          sprintf(buffer, "Your charge is %d dollars", ch->balance);
-          ch->state = CHARGE_WELCOME;
-          esl_execute(ch->handle, "speak", buffer, NULL);
-        } else {
-          ch->state = CHARGE_WELCOME;
-          esl_execute(ch->handle, "speak", "invalid input, please input again", NULL);
-        }
+    }
+    break;
+  case CHARGE_WAIT_CONFIRM:
+    if (!strcmp(application, "play_and_get_digits")) {
+      char *confirm = get_digits(event);
+      ENSURE_INPUT(ch, confirm);
+      if (!strcmp(confirm, "1")) {
+        char buffer[1024];
+        ch->balance = do_charge(ch->balance, CHARGE);
+        sprintf(buffer,
+                "Charge successfully, charge for %d dollars, "
+                "current charge is %d dollars",
+                CHARGE, ch->balance);
+        ch->state = CHARGE_WELCOME;
+        esl_execute(ch->handle, "speak", buffer, NULL);
+      } else if (!strcmp(confirm, "2")) {
+        ch->state = CHARGE_WELCOME;
+        goto select_menu;
       }
-      break;
-    case CHARGE_WAIT_CARD:
-      if (!strcmp(application, "play_and_get_digits")) {
-        char *card = get_digits(event);
-        ENSURE_INPUT(ch, card);
-
-        if (check_account_card(ch->account, card)) {
-          char buffer[1024];
-          sprintf(buffer, "You want to charge for %d dollars", CHARGE);
-          esl_execute(ch->handle, "speak", buffer, NULL);
-          ch->state = CHARGE_WAIT_CONFIRM;
-          esl_execute(ch->handle, "play_and_get_digits", 
-              "1 1 3 5000 # "
-              " 'say:confirm press one, return to previous step press 2' "
-              ERROR_PROMPT " digits ^\\d$", NULL);
-        } else {
-          ch->state = CHARGE_WELCOME;
-          esl_execute(ch->handle, "speak", 
-              "Invalid input, please enter again", NULL);
-        }
-      }
-      break;
-    case CHARGE_WAIT_CONFIRM:
-      if (!strcmp(application, "play_and_get_digits")) {
-        char *confirm = get_digits(event);
-        ENSURE_INPUT(ch, confirm);
-        if (!strcmp(confirm, "1")) {
-          char buffer[1024];
-          ch->balance = do_charge(ch->balance, CHARGE);
-          sprintf(buffer, "Charge successfully, charge for %d dollars, current charge is %d dollars", CHARGE, ch->balance);
-          ch->state = CHARGE_WELCOME;
-          esl_execute(ch->handle, "speak", buffer, NULL);
-        } else if (!strcmp(confirm, "2")) {
-          ch->state = CHARGE_WELCOME;
-          goto select_menu;
-        }
-      }
-      break;
-    default:
-      break;
+    }
+    break;
+  default:
+    break;
   }
 }
 
