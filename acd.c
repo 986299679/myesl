@@ -1,18 +1,18 @@
 #include <esl.h>
 
-#define HOST "localhost"
-#define PORT 8040
-#define MAXCALL 10000
-#define MAX_AGENTS 3
+#define HOST                  "localhost"
+#define PORT                  8040
+#define MAXCALL               10000
+#define MAX_AGENTS            3
 #define set_string(dest, str) strncpy(dest, str, sizeof(dest) - 1);
 
-typedef enum agent_status_s {
+typedef enum agent_status_em {
   AGENT_IDLE,
   AGENT_BUSY,
   AGENT_FAIL
 } agent_status_t;
 
-typedef struct agent_s {
+typedef struct agent_st {
   char exten[10];
   char uuid[37];
   agent_status_t state;
@@ -25,11 +25,12 @@ static int last_agent_index = MAX_AGENTS - 1;
 /* Function headers {{{ */
 static void init_agents(void);
 
-static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock, struct sockaddr_in *addr, void *user_data);
+static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
+                           struct sockaddr_in *addr, void *user_data);
 
 static agent_t *find_available_agent(void);
 
-static void reset_agent(agent_t* agent);
+static void reset_agent(agent_t *agent);
 /* }}} Function headers */
 
 int main(int argc, char *argv[])
@@ -46,9 +47,10 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock, struct sockaddr_in *addr, void *user_data)
+static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
+                           struct sockaddr_in *addr, void *user_data)
 {
-  esl_handle_t handle = {{ 0 }};
+  esl_handle_t handle = {{0}};
   esl_status_t status = ESL_SUCCESS;
   agent_t *agent = NULL;
   const char *cid_name, *cid_number;
@@ -56,7 +58,8 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock, s
   esl_attach_handle(&handle, client_sock, addr);
 
   cid_name = esl_event_get_header(handle.info_event, "Caller-Caller-ID-Name");
-  cid_number = esl_event_get_header(handle.info_event, "Caller-Caller-ID-Number");
+  cid_number =
+    esl_event_get_header(handle.info_event, "Caller-Caller-ID-Number");
   esl_log(ESL_LOG_INFO, "New Call from \"%s\" <%s>\n", cid_name, cid_name);
 
   esl_send_recv(&handle, "myevents");
@@ -68,8 +71,10 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock, s
   esl_execute(&handle, "set", "tts_voice=Zira", NULL);
   esl_execute(&handle, "set", "continue_on_fail=true", NULL);
   esl_execute(&handle, "set", "hangup_after_bridge=true", NULL);
-  esl_execute(&handle, "speak", "Hello, welcome to call to Yunda,"
-      " telphone is tranfering to sitters, please holding on", NULL);
+  esl_execute(&handle, "speak",
+              "Hello, welcome to call to Yunda,"
+              " telphone is tranfering to sitters, please holding on",
+              NULL);
   sleep(5);
   esl_execute(&handle, "playback", "local_stream://moh", NULL);
 
@@ -98,33 +103,33 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock, s
       esl_event_get_header(handle.last_ievent, "Event-Name");
 
       switch (handle.last_ievent->event_id) {
-        case ESL_EVENT_CHANNEL_BRIDGE:
-          set_string(agent->uuid,
-              esl_event_get_header(handle.last_ievent, "Other-Leg-Unique-ID"));
-          esl_log(ESL_LOG_INFO, "bridge to %s\n", agent->exten);
-          break;
-        case ESL_EVENT_CHANNEL_HANGUP_COMPLETE:
-          esl_log(ESL_LOG_INFO, "Caller \"%s\" <%s> Hangup \n",
-              cid_name, cid_number);
-          if (agent) {
+      case ESL_EVENT_CHANNEL_BRIDGE:
+        set_string(agent->uuid, esl_event_get_header(handle.last_ievent,
+                                                     "Other-Leg-Unique-ID"));
+        esl_log(ESL_LOG_INFO, "bridge to %s\n", agent->exten);
+        break;
+      case ESL_EVENT_CHANNEL_HANGUP_COMPLETE:
+        esl_log(ESL_LOG_INFO, "Caller \"%s\" <%s> Hangup \n", cid_name,
+                cid_number);
+        if (agent) {
+          reset_agent(agent);
+        }
+        goto end;
+      case ESL_EVENT_CHANNEL_EXECUTE_COMPLETE:
+        application = esl_event_get_header(handle.last_ievent, "Application");
+        if (!strcmp(application, "bridge")) {
+          const char *disposition = esl_event_get_header(
+            handle.last_ievent, "variable_originate_disposition");
+          esl_log(ESL_LOG_INFO, "Disposition: %s\n", disposition);
+          if (!strcmp(disposition, "CALL_REJECTED") ||
+              !strcmp(disposition, "USER_BUSY")) {
             reset_agent(agent);
+            agent = NULL;
           }
-          goto end;
-        case ESL_EVENT_CHANNEL_EXECUTE_COMPLETE:
-          application = esl_event_get_header(handle.last_ievent, "Application");
-          if (!strcmp(application, "bridge")) {
-            const char *disposition = esl_event_get_header(handle.last_ievent,
-                "variable_originate_disposition");
-            esl_log(ESL_LOG_INFO, "Disposition: %s\n", disposition);
-            if (!strcmp(disposition, "CALL_REJECTED") ||
-                !strcmp(disposition, "USER_BUSY")) {
-              reset_agent(agent);
-              agent = NULL;
-            }
-          }
-          break;
-        default:
-          break;
+        }
+        break;
+      default:
+        break;
       }
     }
   }
@@ -159,7 +164,7 @@ static agent_t *find_available_agent(void)
     agent = &agents[last_agent_index];
 
     esl_log(ESL_LOG_INFO, "Comparing agent [%d:%s:%s]\n", last_agent_index,
-        agent->exten, agent->state == AGENT_IDLE ? "IDLE" : "BUSY");
+            agent->exten, agent->state == AGENT_IDLE ? "IDLE" : "BUSY");
 
     if (agent->state == AGENT_IDLE) {
       agent->state = AGENT_BUSY;
@@ -176,7 +181,7 @@ static agent_t *find_available_agent(void)
   return NULL;
 }
 
-static void reset_agent(agent_t* agent)
+static void reset_agent(agent_t *agent)
 {
   esl_mutex_lock(mutex);
   agent->state = AGENT_IDLE;
