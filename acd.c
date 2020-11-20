@@ -84,6 +84,11 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
   while (ESL_SUCCESS == status || ESL_BREAK == status) {
     const char *type;
     const char *application;
+    /*
+     * esl_recv_timed a event driver function, we receive a event,
+     * put it into `handle` and now handle.last_event is the event
+     * that just received.
+     */
     status = esl_recv_timed(&handle, 1000);
 
     if (ESL_BREAK == status) {
