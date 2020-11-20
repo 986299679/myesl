@@ -1,17 +1,16 @@
 LIBESL = /usr/local/freeswitch/lib/libesl.a
 
-CFLAGS = -ggdb -pthread -lpthread
+CFLAGS = -ggdb -Wall
+LDFLAGS = -pthread -lpthread
 
-all:myesl charge acd
+PROGS =	charge acd myesl t_esl
 
-myesl:myesl.c
-	gcc $(CFLAGS) -o myesl myesl.c $(LIBESL)
+LDLIBS+=$(LIBESL)
 
-charge:charge.c
-	gcc $(CFLAGS) -o charge charge.c $(LIBESL)
+all:$(PROGS)
 
-acd:acd.c
-	gcc $(CFLAGS) -o acd acd.c $(LIBESL)
+%:	%.c $(LIBAPUE)
+	$(CC) $(CFLAGS) $@.c -o $@ $(LDFLAGS) $(LDLIBS)
 
 clean:
-	rm -f myesl charge
+	rm -f $(PROGS) $(TEMPFILES) *.o

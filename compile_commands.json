@@ -1,23 +1,10 @@
 [
     {
         "arguments": [
-            "gcc",
+            "cc",
             "-c",
             "-ggdb",
-            "-pthread",
-            "/usr/local/freeswitch/lib/libesl.a",
-            "-o",
-            "acd",
-            "acd.c"
-        ],
-        "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "acd.c"
-    },
-    {
-        "arguments": [
-            "gcc",
-            "-c",
-            "-ggdb",
+            "-Wall",
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
@@ -29,9 +16,25 @@
     },
     {
         "arguments": [
-            "gcc",
+            "cc",
             "-c",
             "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "acd",
+            "acd.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "acd.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
@@ -40,5 +43,20 @@
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
         "file": "charge.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "t_esl",
+            "t_esl.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "t_esl.c"
     }
 ]
