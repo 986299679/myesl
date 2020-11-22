@@ -8,11 +8,11 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "myesl",
-            "myesl.c"
+            "testserver_fork",
+            "testserver_fork.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "myesl.c"
+        "file": "testserver_fork.c"
     },
     {
         "arguments": [
@@ -23,11 +23,11 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "acd",
-            "acd.c"
+            "t_esl",
+            "t_esl.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "acd.c"
+        "file": "t_esl.c"
     },
     {
         "arguments": [
@@ -53,10 +53,55 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "t_esl",
-            "t_esl.c"
+            "myesl",
+            "myesl.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "t_esl.c"
+        "file": "myesl.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "testclient",
+            "testclient.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "testclient.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "acd",
+            "acd.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "acd.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "testserver",
+            "testserver.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "testserver.c"
     }
 ]

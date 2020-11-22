@@ -41,13 +41,29 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
     case ESL_SUCCESS:
       printf("\nESL_SUCCESS\n");
       printf("[%d]%s\n", handle.errnum, handle.err);
-      /* header = handle.info_event->headers; */
-      header = handle.info_event->headers;
+      /*
+       * header = handle.info_event->headers;
+       * do {
+       *   header = header->next;
+       *   printf("%s:%s\n", header->name, header->value);
+       * } while (header != handle.info_event->last_header);
+       * printf("--bodies--\n%s\n\n", handle.info_event->body);
+       * if (!strcmp(esl_event_get_header(handle.last_event, "content-type"),
+       *             "text/disconnect-notice")) {
+       *   goto disconn;
+       * }
+       */
+      header = handle.last_event->headers;
       do {
         header = header->next;
         printf("%s:%s\n", header->name, header->value);
-      } while (header != handle.info_event->last_header);
-      printf("--bodies--\n%s\n\n", handle.info_event->body);
+      } while (header != handle.last_event->last_header);
+      printf("--bodies--\n%s\n\n", handle.last_event->body);
+      if (!strcmp(esl_event_get_header(handle.last_event, "content-type"),
+                  "text/disconnect-notice")) {
+        goto disconn;
+      }
+
       break;
     case ESL_FAIL:
       printf("\nESL_FAIL\n");
@@ -72,5 +88,7 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
     }
   }
 
+disconn:
   esl_disconnect(&handle);
+  printf("Disconnected!!\n");
 }

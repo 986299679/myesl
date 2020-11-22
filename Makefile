@@ -3,7 +3,7 @@ LIBESL = /usr/local/freeswitch/lib/libesl.a
 CFLAGS = -ggdb -Wall
 LDFLAGS = -pthread -lpthread
 
-PROGS =	charge acd myesl t_esl
+PROGS =	charge acd myesl t_esl testclient testserver testserver_fork
 
 LDLIBS+=$(LIBESL)
 
