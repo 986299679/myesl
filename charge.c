@@ -19,14 +19,14 @@
 /*Business Marcos*/
 #define BLANCE       100
 #define CHARGE       100
-#define ERROR_PROMPT " 'say:invalid input, please enter again' "
+#define ERROR_PROMPT " 'say:无效的输入 ' "
 
 #define set_string(dest, str) strncpy(dest, str, sizeof(dest) - 1);
 
 #define ENSURE_INPUT(ch, input)                                                \
   do {                                                                         \
     if (!input) {                                                              \
-      esl_execute(ch->handle, "speak", "Bye", NULL);                           \
+      esl_execute(ch->handle, "speak", "再见", NULL);                          \
       esl_execute(ch->handle, "handup", NULL, NULL);                           \
       return;                                                                  \
     }                                                                          \
@@ -104,8 +104,7 @@ static void charge_callback(esl_socket_t server_sock,
   esl_execute(&handle, "answer", NULL, NULL);
   esl_execute(&handle, "set", "tts_engine=tts_commandline", NULL);
   esl_execute(&handle, "set", "tts_voice=TingTing", NULL);
-  esl_execute(&handle, "speak", "Hello, welcome to airline charge service",
-              NULL);
+  esl_execute(&handle, "speak", "您好,欢迎拨打韵达账号充值查询系统", NULL);
 
   while (ESL_SUCCESS == (status = esl_recv(&handle))) {
     const char *type = esl_event_get_header(handle.last_event, "content-type");
@@ -139,8 +138,8 @@ static void event_callback(charge_helper_t *ch)
       ch->state = CHARGE_MENU;
       esl_execute(ch->handle, "play_and_get_digits",
                   "1 1 3 5000 # "
-                  " 'say: checkout press number one, charge "
-                  "press number 2' " ERROR_PROMPT " digits ^\\d$",
+                  " 'say: 账户查询请按1,充值请按2' " ERROR_PROMPT
+                  " digits ^\\d$",
                   NULL);
     }
     break;
@@ -157,8 +156,8 @@ static void event_callback(charge_helper_t *ch)
       ch->state = CHARGE_WAIT_ACCOUNT;
       esl_execute(ch->handle, "play_and_get_digits",
                   "4 5 3 5000 # "
-                  " 'say: please enter your account, end up "
-                  "with bound key' " ERROR_PROMPT " digits ^\\d{4}$",
+                  " 'say: 请输入您的账号，并按井号键结束' " ERROR_PROMPT
+                  " digits ^\\d{4}$",
                   NULL);
     }
     break;
@@ -172,13 +171,12 @@ static void event_callback(charge_helper_t *ch)
         ch->state = CHARGE_WAIT_ACCOUNT_PASSWORD;
         esl_execute(ch->handle, "play_and_get_digits",
                     "4 5 3 5000 # "
-                    " 'say:please enter your password, endup "
-                    "with bound key' " ERROR_PROMPT " digits ^\\d{4}$",
+                    " 'say:请输入您的密码,并按井号键结束' " ERROR_PROMPT
+                    " digits ^\\d{4}$",
                     NULL);
       } else {
         ch->state = CHARGE_WELCOME;
-        esl_execute(ch->handle, "speak", "Invalid input, please try again",
-                    NULL);
+        esl_execute(ch->handle, "speak", "账号不正确，请重新输入", NULL);
       }
     }
   case CHARGE_WAIT_ACCOUNT_PASSWORD:
@@ -188,13 +186,12 @@ static void event_callback(charge_helper_t *ch)
 
       if (check_account_password(ch->account, password)) {
         char buffer[1024];
-        sprintf(buffer, "Your charge is %d dollars", ch->balance);
+        sprintf(buffer, "您的当前账户剩余余额为%d美元", ch->balance);
         ch->state = CHARGE_WELCOME;
         esl_execute(ch->handle, "speak", buffer, NULL);
       } else {
         ch->state = CHARGE_WELCOME;
-        esl_execute(ch->handle, "speak", "invalid input, please input again",
-                    NULL);
+        esl_execute(ch->handle, "speak", "密码输入不正确，请重新输入", NULL);
       }
     }
     break;
@@ -210,13 +207,12 @@ static void event_callback(charge_helper_t *ch)
         ch->state = CHARGE_WAIT_CONFIRM;
         esl_execute(ch->handle, "play_and_get_digits",
                     "1 1 3 5000 # "
-                    " 'say:confirm press one, return to "
-                    "previous step press 2' " ERROR_PROMPT " digits ^\\d$",
+                    " 'say:确认请按1，返回上一层请按2' " ERROR_PROMPT
+                    " digits ^\\d$",
                     NULL);
       } else {
         ch->state = CHARGE_WELCOME;
-        esl_execute(ch->handle, "speak", "Invalid input, please enter again",
-                    NULL);
+        esl_execute(ch->handle, "speak", "无效的输入,请重新输入", NULL);
       }
     }
     break;
@@ -228,8 +224,8 @@ static void event_callback(charge_helper_t *ch)
         char buffer[1024];
         ch->balance = do_charge(ch->balance, CHARGE);
         sprintf(buffer,
-                "Charge successfully, charge for %d dollars, "
-                "current charge is %d dollars",
+                "充值成功，您充值%d美元,当前余额%d美元"
+                "感谢您的来电，再见",
                 CHARGE, ch->balance);
         ch->state = CHARGE_WELCOME;
         esl_execute(ch->handle, "speak", buffer, NULL);
