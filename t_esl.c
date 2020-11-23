@@ -34,8 +34,6 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
   esl_events(&handle, ESL_EVENT_TYPE_PLAIN, "all");
   esl_execute(&handle, "answer", NULL, NULL);
 
-  /* TODO: How to make it disconnected automatically when channel hangup
-   * <20-11-20, GenmZy_> */
   while (1) {
     status = esl_recv_event_timed(&handle, 1000, 0, NULL);
     switch (status) {
