@@ -9,7 +9,7 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
 
 int main(int argc, char *argv[])
 {
-
+  esl_global_set_default_logger(ESL_LOG_LEVEL_INFO);
   esl_listen_threaded(HOST, PORT, t_callback, NULL, TIMEOUT);
 
   return 0;
@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
 static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
                        struct sockaddr_in *addr, void *user_data)
 {
-  esl_handle_t handle = { 0 };
+  char *type;
+  esl_handle_t handle = {{0}};
   esl_event_header_t *header = NULL;
   esl_status_t status = ESL_SUCCESS;
 
@@ -48,8 +49,10 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
        *   printf("%s:%s\n", header->name, header->value);
        * } while (header != handle.info_event->last_header);
        * printf("--bodies--\n%s\n\n", handle.info_event->body);
-       * if (!strcmp(esl_event_get_header(handle.last_event, "content-type"),
-       *             "text/disconnect-notice")) {
+       * type = esl_event_get_header(handle.last_event, "content-type");
+       * if (type == NULL || !strcmp(type, "text/disconnect-notice")) {
+       *   goto disconn;
+       * }
        *   goto disconn;
        * }
        */
@@ -59,8 +62,8 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
         printf("%s:%s\n", header->name, header->value);
       } while (header != handle.last_event->last_header);
       printf("--bodies--\n%s\n\n", handle.last_event->body);
-      if (!strcmp(esl_event_get_header(handle.last_event, "content-type"),
-                  "text/disconnect-notice")) {
+      type = esl_event_get_header(handle.last_event, "content-type");
+      if (type == NULL || !strcmp(type, "text/disconnect-notice")) {
         goto disconn;
       }
 
