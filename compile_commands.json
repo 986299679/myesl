@@ -8,22 +8,7 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "testserver_fork",
-            "testserver_fork.c"
-        ],
-        "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "testserver_fork.c"
-    },
-    {
-        "arguments": [
-            "cc",
-            "-c",
-            "-ggdb",
-            "-Wall",
-            "-pthread",
-            "/usr/local/freeswitch/lib/libesl.a",
-            "-o",
-            "t_esl",
+            "target/t_esl",
             "t_esl.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
@@ -38,37 +23,7 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "charge",
-            "charge.c"
-        ],
-        "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "charge.c"
-    },
-    {
-        "arguments": [
-            "cc",
-            "-c",
-            "-ggdb",
-            "-Wall",
-            "-pthread",
-            "/usr/local/freeswitch/lib/libesl.a",
-            "-o",
-            "myesl",
-            "myesl.c"
-        ],
-        "directory": "/home/waves/Workspace/clang/t_esl",
-        "file": "myesl.c"
-    },
-    {
-        "arguments": [
-            "cc",
-            "-c",
-            "-ggdb",
-            "-Wall",
-            "-pthread",
-            "/usr/local/freeswitch/lib/libesl.a",
-            "-o",
-            "testclient",
+            "target/testclient",
             "testclient.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
@@ -83,7 +38,22 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "acd",
+            "target/myesl",
+            "myesl.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "myesl.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "target/acd",
             "acd.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
@@ -98,10 +68,55 @@
             "-pthread",
             "/usr/local/freeswitch/lib/libesl.a",
             "-o",
-            "testserver",
+            "target/t_esl_recv_event_timed",
+            "t_esl_recv_event_timed.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "t_esl_recv_event_timed.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "target/testserver",
             "testserver.c"
         ],
         "directory": "/home/waves/Workspace/clang/t_esl",
         "file": "testserver.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "target/testserver_fork",
+            "testserver_fork.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "testserver_fork.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-ggdb",
+            "-Wall",
+            "-pthread",
+            "/usr/local/freeswitch/lib/libesl.a",
+            "-o",
+            "target/charge",
+            "charge.c"
+        ],
+        "directory": "/home/waves/Workspace/clang/t_esl",
+        "file": "charge.c"
     }
 ]

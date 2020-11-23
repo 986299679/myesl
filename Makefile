@@ -15,4 +15,4 @@ all:$(PROGS)
 	$(CC) $(CFLAGS) $@.c -o $(TARGET_DIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 clean:
-	rm -f $(TARGET_DIR)/$(PROGS) $(TEMPFILES) *.o
+	rm -f $(TARGET_DIR)/*
