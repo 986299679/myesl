@@ -56,7 +56,7 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
         const char *disp = esl_event_get_header(handle.last_event, "Content-Disposition");
         if (!strcmp(disp, "linger")) {
           done = 1;
-          exped = time(NULL) + 5;
+          exped = time(NULL) + LINGER_WAIT;
           printf("Waiting for %d seconds for linger\n", LINGER_WAIT);
         }
       }
