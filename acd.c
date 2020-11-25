@@ -159,7 +159,7 @@ static agent_t *find_available_agent(void)
   int last;
   agent_t *agent;
 
-  esl_mutex_lock(mutex);
+  esl_mutex_lock(mutex); // For lock last_agent_index
   last = last_agent_index;
 
   while (1) {
