@@ -12,7 +12,8 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
 
 int main(int argc, char *argv[])
 {
-  esl_global_set_default_logger(ESL_LOG_LEVEL_DEBUG);
+  /*esl_global_set_default_logger(ESL_LOG_LEVEL_DEBUG);*/
+  esl_global_set_default_logger(ESL_LOG_LEVEL_INFO);
   esl_listen_threaded(HOST, PORT, t_callback, NULL, TIMEOUT);
 
   return 0;
@@ -32,7 +33,7 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
     return;
   }
 
-  printf("Connected\n");
+  esl_log(ESL_LOG_INFO, "Connected\n");
 
   esl_send_recv(&handle, "linger");
 
@@ -42,7 +43,7 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
   esl_send_recv_timed(&handle, LINGER_CMD, 1000);
 
   if ((uuid = esl_event_get_header(handle.info_event, "unique-id")) != NULL) {
-    printf("Here comes a uuid %s\n", uuid);
+    esl_log(ESL_LOG_INFO, "Here comes a uuid %s\n", uuid);
   }
 
   while ((status = esl_recv_event_timed(&handle, 1000, 0, NULL)) != ESL_FAIL) {
@@ -57,12 +58,12 @@ static void t_callback(esl_socket_t server_sock, esl_socket_t client_sock,
         if (!strcmp(disp, "linger")) {
           done = 1;
           exped = time(NULL) + LINGER_WAIT;
-          printf("Waiting for %d seconds for linger\n", LINGER_WAIT);
+          esl_log(ESL_LOG_INFO, "Waiting for %d seconds for linger\n", LINGER_WAIT);
         }
       }
     }
   }
 
   esl_disconnect(&handle);
-  printf("Disconnected!!\n");
+  esl_log(ESL_LOG_INFO, "Disconnected!!\n");
 }
