@@ -74,9 +74,7 @@ static void acd_mycallback(esl_socket_t server_sock, esl_socket_t client_sock,
   esl_execute(&handle, "set", "tts_voice=Zira", NULL);
   esl_execute(&handle, "set", "continue_on_fail=true", NULL);
   esl_execute(&handle, "set", "hangup_after_bridge=true", NULL);
-  esl_execute(&handle, "speak",
-              "Hello, welcome to call to Yunda,"
-              " this telphone is tranfering to agents, please hold on",
+  esl_execute(&handle, "speak", "欢迎来到韵达,正在为您转接人工服务,请稍后",
               NULL);
   sleep(5);
   esl_execute(&handle, "playback", "local_stream://moh", NULL);
